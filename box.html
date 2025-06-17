@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Surprise Box</title>
+    <style>
+        /* ----------- BASIC RESET ----------- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ----------- LAYOUT ----------- */
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            width: 100vw;
+            background: #363636;
+            background-size: cover;
+            overflow: hidden;
+            font-family: system-ui, sans-serif;
+        }
+
+        .container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ----------- IMAGES ----------- */
+        img {
+            max-width: 95vw;
+            max-height: 85vh;
+            height: auto;
+            transition: opacity 0.5s ease-in-out;
+            user-select: none;
+            -webkit-user-drag: none;
+        }
+
+        /* ----------- BUTTONS ----------- */
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            color: #fff;
+        }
+
+        #toggleButton {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #000;
+        }
+
+        #heartButton {
+            position: absolute;
+            top: 35%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 200px;
+            background: url("./assets/heart.png") no-repeat center/contain;
+            display: none;
+        }
+
+        #musicButton {
+            margin-top: 20px;
+            background: #969696;
+        }
+
+        #backButton {
+            margin-top: 10px;
+            background: #444;
+        }
+
+        /* ----------- MESSAGE TEXT ----------- */
+        #messageText {
+            position: absolute;
+            top: 10%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 20px;
+            font-weight: bold;
+            color: #eee;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Closed box image -->
+        <img id="box" src="./img/1.png" alt="Closed Box" />
+
+        <!-- OPEN button -->
+        <button id="toggleButton" onclick="toggleBox()">Click Here</button>
+
+        <!-- Heart button (shows after opening) -->
+        <button id="heartButton"></button>
+
+
+        <!-- Confetti container (if you add confetti later) -->
+        <div id="confetti-container"></div>
+
+        <!-- One‑shot sound (plays when heart button is clicked) -->
+        <audio id="audio" src="./world.mp3"></audio>
+
+        <!-- Looping background track -->
+        <audio id="backgroundMusic" src="./world.mp3" loop></audio>
+
+        <!-- Hidden message -->
+        <div id="messageText">Surprise! 🎉</div>
+
+        <!-- Back link -->
+        <button id="backButton" onclick="goBack()">← Back</button>
+    </div>
+
+    <script>
+        let isOpen = false;
+
+        function toggleBox() {
+            const box            = document.getElementById("box");
+            const toggleButton   = document.getElementById("toggleButton");
+            const heartButton    = document.getElementById("heartButton");
+            const messageText    = document.getElementById("messageText");
+            const backgroundMusic = document.getElementById("backgroundMusic");
+
+            if (isOpen) {
+                /* ----- CLOSE THE BOX ----- */
+                box.src = "./img/1.png";
+                box.alt = "Closed Box";
+                toggleButton.style.display = "block";
+                heartButton.style.display   = "none";
+                messageText.style.display   = "none";
+                backgroundMusic.pause();
+                isOpen = false;
+            } else {
+                /* ----- OPEN THE BOX ----- */
+                box.src = "./img/2.png";
+                box.alt = "Open Box with Cat";
+                toggleButton.style.display = "none";
+                heartButton.style.display   = "block";
+                messageText.style.display   = "block";
+                isOpen = true;
+
+                /* --- PLAY BACKGROUND MUSIC --- */
+                backgroundMusic.volume = 0.3;      // softer volume
+                backgroundMusic.play().catch(err => {
+                    console.warn("Autoplay blocked:", err);
+                });
+            }
+        }
+
+        /* Plays a separate sound when heart is clicked */
+        document.getElementById("heartButton").addEventListener("click", () => {
+            const audio = document.getElementById("audio");
+            audio.play().catch(err => console.error("Audio play failed:", err));
+        });
+
+        /* Manual play/pause button */
+        function toggleMusic() {
+            const musicButton    = document.getElementById("musicButton");
+            const backgroundMusic = document.getElementById("backgroundMusic");
+
+            if (backgroundMusic.paused) {
+                backgroundMusic.volume = 0.3;
+                backgroundMusic.play();
+                musicButton.textContent = "Pause Background Music";
+            } else {
+                backgroundMusic.pause();
+                musicButton.textContent = "Play Background Music";
+            }
+        }
+
+        /* Navigate back to home page */
+        function goBack() {
+            window.location.href = "home.html";
+        }
+    </script>
+</body>
+</html>
