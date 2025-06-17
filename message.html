@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Message in a Bottle</title>
+  <style>
+    body {
+      background: #000000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      height: 100vh;
+      font-family: Arial, sans-serif;
+      overflow: hidden;
+      padding: 20px;
+      text-align: center;
+    }
+
+    /* Falling leaves */
+    #leaves {
+      position: fixed;
+      top: -50px;
+      width: 100%;
+      text-align: right;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    #leaves i {
+      display: inline-block;
+      width: 30px;
+      height: 23px;
+      background: linear-gradient(to bottom right, #309900, #005600);
+      transform: rotate(180deg);
+      border-radius: 5% 40% 70%;
+      box-shadow: inset 0px 0px 1px #222;
+      border: 1px solid #333;
+      opacity: 0.7;
+      position: absolute;
+      animation: falling 5s infinite ease-in-out;
+    }
+
+    #leaves i:nth-of-type(2n) {
+      animation: falling2 5s infinite ease-in-out;
+    }
+
+    #leaves i:nth-of-type(3n) {
+      animation: falling3 5s infinite ease-in-out;
+    }
+
+    #leaves i:nth-of-type(1)  { left: 10%; animation-delay: 1.9s; }
+    #leaves i:nth-of-type(2)  { left: 20%; animation-delay: 3.9s; }
+    #leaves i:nth-of-type(3)  { left: 30%; animation-delay: 2.3s; }
+    #leaves i:nth-of-type(4)  { left: 40%; animation-delay: 4.4s; }
+    #leaves i:nth-of-type(5)  { left: 50%; animation-delay: 5s; }
+    #leaves i:nth-of-type(6)  { left: 60%; animation-delay: 3.5s; }
+    #leaves i:nth-of-type(7)  { left: 70%; animation-delay: 2.8s; }
+    #leaves i:nth-of-type(8)  { left: 80%; animation-delay: 1.5s; }
+    #leaves i:nth-of-type(9)  { left: 90%; animation-delay: 3.3s; }
+    #leaves i:nth-of-type(10) { left: 15%; animation-delay: 2.5s; }
+    #leaves i:nth-of-type(11) { left: 25%; animation-delay: 1.2s; }
+    #leaves i:nth-of-type(12) { left: 35%; animation-delay: 4.1s; }
+    #leaves i:nth-of-type(13) { left: 45%; animation-delay: 1s; }
+    #leaves i:nth-of-type(14) { left: 55%; animation-delay: 4.7s; }
+    #leaves i:nth-of-type(15) { left: 65%; animation-delay: 3s; }
+
+    @keyframes falling {
+      0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(700px) rotate(90deg);
+        opacity: 0;
+      }
+    }
+
+    @keyframes falling2 {
+      0% {
+        transform: translateY(0) rotate(90deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(680px) rotate(0deg);
+        opacity: 0;
+      }
+    }
+
+    @keyframes falling3 {
+      0% {
+        transform: translateY(0) rotate(-20deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(640px) rotate(-70deg);
+        opacity: 0;
+      }
+    }
+
+    /* Modal and bottle styles */
+    .modal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .modal-content p {
+      font-size: 1.5rem;
+    }
+
+    .modal button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      border: none;
+      background: #555;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    .modal button:hover {
+      background: #a19f9f;
+    }
+
+    .container {
+      position: relative;
+      display: none;
+      text-align: center;
+      z-index: 1;
+    }
+
+    .bottle {
+      width: 400px;
+      height: 750px;
+      background: url('https://images.vexels.com/media/users/3/182680/isolated/preview/bd90f1e8800e434708865043620a28bc-hand-drawn-bottle.png') no-repeat center;
+      background-size: contain;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .message-box {
+      position: absolute;
+      top: 70%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      background: #f5f5dc;
+      padding: 5vw;
+      width: 80vw;
+      max-width: 500px;
+      min-height: 250px;
+      border-radius: 15px;
+      box-shadow: 5px 5px 15px rgba(0,0,0,0.2);
+      transition: transform 0.5s ease-in-out, top 1s ease-in-out;
+      background-image: url('https://www.transparenttextures.com/patterns/old-paper.png');
+      border: 3px solid #6b6762;
+      font-family: 'Times New Roman', serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      text-align: center;
+      font-size: 1.2rem;
+    }
+
+    .message-box.active {
+      transform: translate(-50%, -50%) scale(1);
+      top: 50%;
+    }
+
+    .message-text {
+      flex: 1;
+      padding: 15px;
+      text-align: center;
+      font-size: 1.5rem;
+      line-height: 1.6;
+    }
+
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .nav-buttons button, .close-btn {
+      background: none;
+      border: none;
+      font-size: 25px;
+      cursor: pointer;
+      margin: 10px;
+    }
+
+    .close-btn {
+      color: crimson;
+      align-self: flex-end;
+    }
+
+    @media (max-width: 768px) {
+      .bottle { width: 200px; height: 400px; }
+      .message-box { width: 95vw; font-size: 1.2rem; }
+    }
+
+    @media (max-width: 480px) {
+      .bottle { width: 150px; height: 300px; }
+      .message-box { width: 98vw; font-size: 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Falling Leaves -->
+  <div id="leaves">
+    <i></i><i></i><i></i><i></i><i></i>
+    <i></i><i></i><i></i><i></i><i></i>
+    <i></i><i></i><i></i><i></i><i></i>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <p>Someone sent you a message in a bottle. Open?</p>
+      <button onclick="startExperience()">Open</button>
+    </div>
+  </div>
+
+  <!-- Background Music -->
+  <audio id="backgroundMusic" autoplay loop>
+    <source src="./pov.mp3" type="audio/mpeg" />
+    Your browser does not support the audio element.
+  </audio>
+
+  <!-- Main Content -->
+  <div class="container" id="mainContent">
+    <div class="bottle" onclick="openMessage()"></div>
+    <div class="message-box" id="messageBox">
+      <button class="close-btn" onclick="closeMessage()">&times;</button>
+      <div class="message-text" id="messageText"></div>
+      <div class="nav-buttons">
+        <button onclick="prevMessage()">&#8592;</button>
+        <button onclick="nextMessage()">&#8594;</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let messages = [
+      "I’ve doubted many things in life. But for the first time, my heart knows something true. It's the only thing I'm certain of, and it's you.",
+      "Courting me through the distance, the quiet nights, and the endless calls, you’ve shown me consistency, patience, and love in ways that words can hardly capture. You’ve loved not only me, but my baby wo ai ni as well.",
+      "We’ve faced our share of struggles, but I believe we’ll make it through. Together. You’ve made me feel chosen every single day, even from miles away.",
+      "And so, I choose you too..",
+      "Let’s make it official.",
+      "It’s a YES!"
+    ];
+    let messageIndex = 0;
+
+    function startExperience() {
+      document.getElementById("modal").style.display = "none";
+      document.getElementById("mainContent").style.display = "block";
+      updateMessage();
+    }
+
+    function openMessage() {
+      document.getElementById("messageBox").classList.add("active");
+      updateMessage();
+    }
+
+    function closeMessage() {
+      document.getElementById("messageBox").classList.remove("active");
+    }
+
+    function nextMessage() {
+      if (messageIndex < messages.length - 1) {
+        messageIndex++;
+        updateMessage();
+      }
+    }
+
+    function prevMessage() {
+      if (messageIndex > 0) {
+        messageIndex--;
+        updateMessage();
+      }
+    }
+
+    function updateMessage() {
+      document.getElementById("messageText").innerHTML = `<p>${messages[messageIndex]}</p>`;
+    }
+  </script>
+</body>
+</html>

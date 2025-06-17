@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>How much do u know about us</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&display=swap');
+
+    :root {
+      --font-main: 'Orbitron', sans-serif;
+      --font-mono: 'Share Tech Mono', monospace;
+    }
+
+    body {
+      background-color: #a4a4a4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .quiz-container {
+      background: white;
+      border-radius: 20px;
+      padding: 2rem;
+      width: 90%;
+      max-width: 500px;
+      text-align: center;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+
+    h4 {
+      color: #000000;
+    }
+
+    input[type="text"] {
+      width: 80%;
+      padding: 0.5rem;
+      margin-top: 1rem;
+      border: 2px solid #454545;
+      border-radius: 10px;
+      font-size: 1rem;
+    }
+
+    button {
+      background-color: #414141;
+      border: none;
+      padding: 0.5rem 1rem;
+      margin-top: 1.5rem;
+      border-radius: 10px;
+      font-size: 1rem;
+      color: white;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background-color: #3b3b3b;
+    }
+
+    #result {
+      white-space: pre-line;
+      margin-top: 1.5rem;
+      font-size: 1.1rem;
+      color: #1e1418;
+    }
+
+    .question-section {
+      display: none;
+    }
+
+    .question-section.active {
+      display: block;
+    }
+
+    .back-btn {
+      margin-top: 2rem;
+      display: inline-block;
+      text-decoration: none;
+      background: #414141;
+      color: white;
+      padding: 0.6rem 1.2rem;
+      border-radius: 10px;
+      font-size: 1rem;
+    }
+
+    .back-btn:hover {
+      background: #3b3b3b;
+    }
+
+    @media (max-width: 480px) {
+      .quiz-container {
+        padding: 1.5rem;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      p {
+        font-size: 1rem;
+      }
+
+      button {
+        width: 100%;
+        padding: 0.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="quiz-container">
+  <div class="question-section active" id="q1">
+    <h4>Question 1</h4>
+    <p>When did we start talking?</p>
+    <input type="text" id="a1" placeholder=" " />
+    <br>
+    <button onclick="nextQuestion(1)">Next ➡️</button>
+  </div>
+
+  <div class="question-section" id="q2">
+    <h4>Question 2</h4>
+    <p>What's the first movie that we watched together?</p>
+    <input type="text" id="a2" placeholder=" " />
+    <br>
+    <button onclick="nextQuestion(2)">Next ➡️</button>
+  </div>
+
+  <div class="question-section" id="q3">
+    <h4>Question 3</h4>
+    <p>When was Wo Ai Ni's birthday?</p>
+    <input type="text" id="a3" placeholder=" " />
+    <br>
+    <button onclick="nextQuestion(3)">Next ➡️</button>
+  </div>
+
+  <div class="question-section" id="q4">
+    <h4>Question 4</h4>
+    <p>What animal couple are we?</p>
+    <input type="text" id="a4" placeholder=" " />
+    <br>
+    <button onclick="showResult()">Submit 💖</button>
+  </div>
+
+  <div id="result" class="question-section"></div>
+</div>
+
+<script>
+  const correctAnswers = {
+    a1: "april 21, 2025",
+    a2: "i'm drunk, i love you",
+    a3: "december 24, 2024",
+    a4: "swan"
+  };
+
+  function nextQuestion(current) {
+    const input = document.getElementById(`a${current}`);
+    if (input.value.trim() === "") {
+      alert("Please fill in your answer 🥺");
+      return;
+    }
+    document.getElementById(`q${current}`).classList.remove("active");
+    document.getElementById(`q${current + 1}`).classList.add("active");
+  }
+
+  function showResult() {
+    const answers = {};
+    for (let i = 1; i <= 4; i++) {
+      answers[`a${i}`] = document.getElementById(`a${i}`).value.trim().toLowerCase();
+    }
+
+    let correctCount = 0;
+    for (let key in correctAnswers) {
+      if (answers[key] === correctAnswers[key]) {
+        correctCount++;
+      }
+    }
+
+    document.querySelectorAll('.question-section').forEach(q => q.classList.remove('active'));
+
+    const result = document.getElementById("result");
+    if (correctCount === 4) {
+      result.innerHTML = `
+You remembered everything... and that means the world to me.
+From April 21 to movie nights and our wo ai ni—
+this journey with you is my favorite.
+
+Forever yours. 🫶
+<br><br><a href="ours.html" class="back-btn">Back to Ours ↩️</a>`;
+    } else {
+      result.innerHTML = `You got ${correctCount}/4 right 💗
+
+Even if you forgot a few things, you're still my favorite person.
+Let’s keep writing our story together. 
+<br><br><a href="ours.html" class="back-btn">Back to Ours ↩️</a>`;
+    }
+
+    result.classList.add("active");
+  }
+</script>
+
+</body>
+</html>

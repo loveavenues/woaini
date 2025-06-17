@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with Wo Ai Ni</title>
+    <style>
+        /* General Styles */
+        *,
+        ::before,
+        ::after {
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            padding: 0;
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #1a1a1a; /* Dark gray/black background */
+            overscroll-behavior: contain;
+            color: #ffffff; /* White text for general elements */
+        }
+
+        :root {
+            --black: #000000;
+            --white: #ffffff;
+            --gray-dark: #333333;
+            --gray-medium: #666666;
+            --gray-light: #cccccc;
+            --m: 2;
+            interpolate-size: allow-keywords; /* This property is not standard CSS */
+        }
+
+        /* Wrapper and Screen Layout */
+        .wrapper {
+            position: absolute;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .screen {
+            position: relative;
+            width: 100%;
+            height: calc(100dvh - 30px);
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            justify-content: end;
+            margin-bottom: 30px;
+        }
+
+        .inner-screen {
+            background-color: #333333; /* Darker gray for inner chat screen */
+            width: 100%;
+            height: calc(100% - 50px);
+            overflow-y: scroll;
+            display: flex;
+            flex-direction: column-reverse; /* New messages appear at the bottom */
+        }
+
+        .message-wrapper {
+            justify-content: end; /* Aligns content to the bottom */
+        }
+
+        /* UI elements (Input and Send Button) */
+        .ui-wrapper {
+            background-color: #222222; /* Dark gray for UI wrapper */
+            height: 50px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+        }
+
+        /* Text Animation */
+        .speech-bubble span {
+            opacity: 0;
+            animation: forwards fade-in-text 0.2s steps(1);
+        }
+
+        .pulse {
+            opacity: 0;
+            animation: infinite fade-in-fade-out-text 0.5s steps(2);
+        }
+
+        @keyframes fade-in-text {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        @keyframes fade-in-fade-out-text {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        /* Speech Bubble Styling */
+        .speech-bubble {
+            position: relative;
+            padding: 16px 20px;
+            font-size: 1rem;
+            color: #333333; /* Dark gray text inside bubbles */
+            transition: transform 0.3s;
+            /* Base64 for a light gray pixelated border (like the original brown) */
+            --bg: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAAXNSR0IArs4c6QAAACtJREFUKFNjZICCL+/v/z/uWGFELXsGCBMENjKxgoIogQk2SMM0JgoICBgAgD0mD/0d75cAAAAASUVORK5CYII=);
+            border-image: var(--bg) 3 fill / calc(var(--m) * 3px) / 0 stretch;
+            image-rendering: pixelated;
+            width: calc(100% - var(--m) * 7px - 46px);
+            flex-shrink: 1;
+            animation: forwards open-up 0.3s;
+            background-color: #e0e0e0; /* Light gray bubble background */
+        }
+
+        .speech-bubble::after {
+            position: absolute;
+            content: '';
+            /* Base64 for a light gray pixelated triangle (like the original brown) */
+            background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAFCAYAAACJmvbYAAAAAXNSR0IArs4c6QAAACNJREFUGFdj/Pz8/P8GGIARlySrlD0jVkmQBMgwDIkksARIQgAbM0T0Vj2v7AAAAABJRU5ErkJggg==);
+            background-size: cover;
+            width: calc(var(--m) * 7px);
+            height: calc(var(--m) * 5px);
+            left: auto;
+            right: calc(var(--m) * -5px);
+            bottom: calc(var(--m) * 6px);
+        }
+
+        /* Link styling within chat bubbles */
+        .speech-bubble a {
+            color: #ADD8E6; /* Light blue for links */
+            text-decoration: underline;
+            cursor: pointer;
+        }
+        .speech-bubble a:hover {
+            color: #87CEEB; /* Sky blue on hover */
+        }
+
+        /* Reverse (Opposite Side) Speech Bubble */
+        .reverse .speech-bubble {
+            /* Base64 for a darker gray pixelated border (like the original reverse) */
+            --bg: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAAXNSR0IArs4c6QAAAC1JREFUKFNjZICCM/v7/z/uWGFELXsGCBMENjKxgoIogQk2SMM0JgoICBgAgD0mD/0d75cAAAAASRU5ErkJggg==);
+            background-color: #666666; /* Medium gray bubble background */
+            color: #ffffff; /* White text for reverse bubbles */
+        }
+
+        .reverse .speech-bubble::after {
+            /* Base64 for a darker gray pixelated triangle (like the original reverse) */
+            background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAFCAYAAACJmvbYAAAAAXNSR0IArs4c6QAAACFJREFUGFdj/P///38GHIARJI5LAVgSlwK4JDYFKJLoCgD2lRPytGhzEwAAAABJRU5CYII=);
+            left: calc(var(--m) * -5px);
+        }
+
+        /* Message Container */
+        .message {
+            display: flex;
+            align-items: end;
+            justify-content: space-between;
+            padding: 12px;
+            animation: forwards show-message 0.3s;
+            overflow: hidden;
+        }
+
+        .message.reverse {
+            flex-direction: row-reverse;
+        }
+
+        /* Icon (Cat Avatar) */
+        .icon {
+            border-radius: 50%;
+            --size: 40px;
+            width: var(--size);
+            height: var(--size);
+            flex-shrink: 0;
+            animation: forwards open-up 0.3s;
+        }
+
+        @keyframes open-up {
+            0% { opacity: 0; transform: scale(0); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes show-message {
+            0% { height: 0; }
+            100% { height: auto; }
+        }
+
+        /* Cat Specific Avatars (Retained Original Base64 for images) */
+        .cat {
+            background-size: cover;
+            image-rendering: pixelated;
+        }
+
+        .cat.white {
+            background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAAXNSR0IArs4c6QAAAJtJREFUOE9jXPHu/38GKgLGUQPhobneSoAh8NgHrKGLTw5rGII0rLj+gSFCE9NQfHIg2zEMhGmAOQ3ZUHxyMPW0NRDdBciuBLFBwYAO0IMFxYW4DMSX7nEaSI5h2MIZ7kJsAY7NiyBDQK5ClkN2Jf0MRPYOzDXoLsPrZZAk1WMZZiiuJIIc2yDXggB69sRZfIFciw/gyucjsDwEAN3HvKW99h2gAAAAAElFTkSuQmCC);
+        }
+
+        .cat.biscuit {
+            background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAAXNSR0IArs4c6QAAAL5JREFUOE9j/H+z4D8DFQHjqIHw0Izwn8+wYmMi1tDFJ4c1DMEavn9giNAUwDAUJDd1Yj5Ddv5ErBZiGAgzDOY0ZENhhsHksBlKWwPRXYfsShAb5FV0gO5KFBfiMhBkyNtd9VgjCKeB+AzDZyBIDtlQuAuxRsb1DyiugrkSZACy98k2EOZSsgxESTZQl4KTEJSNHKZYXQgygFAswwxDDgf0xI81HYI0YNOMbhBYHVr2xFl8gVyLD+DK5yOwPAQAKPjFoR4p7DEAAAAASUVORK5CYII=);
+        }
+
+        .cat.sleepy {
+            background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAAXNSR0IArs4c6QAAAJ9JREFUOE9j/H9jyn8GKgLGUQPhoRkRUM2wYkMr1tDFJ4c1DEEacuffZ5icqIhhKD45kO0YBsI0wJyGbCg+OZh62hqI7gJkV4LYoGBAB+jBguJCXAbiS/c4DSTHMGzhDHchsoEgW2EA3ZvY5JBdidVAUrM2SQaCFMNcicxGthSrgSAFVI9lmKG4kgi6q0B89OyJs/gCuRYfwJXPR2B5CABijLNdGjYfkwAAAABJRU5ErkJggg==);
+        }
+
+        .cat.choco {
+            background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAAXNSR0IArs4c6QAAAJxJREFUOE9jnP/z3X8GKgLGUQPhoblDX5HB4+J9rKGLTw5rGII0TJ2Yz5CdPxHDUHxyINsxDIRpgDkN2VB8cjD1tDUQ3QXIrgSxQcGADtCDBcWFuAzEl+5xGkiOYdjCGe5CbAGOzYsgQ0CuQpZDdiX9DET2Dsw16C7D62WQJNVjGWYoriSCHNsg14IAevbEWXyBXIsP4MrnI7A8BAC9nrt5ix+41AAAAABJRU5ErkJggg==);
+        }
+
+        /* Text Input Styling */
+        input[type='text'] {
+            border: 0;
+            background-color: #f0f0f0; /* Very light gray for input field */
+            height: 36px;
+            padding: 0 12px;
+            width: 100%;
+            font-size: 1rem;
+            color: #333333; /* Dark gray text in input */
+        }
+
+        input[type='text']:focus {
+            outline: none;
+        }
+
+        .input-wrapper {
+            position: relative;
+            width: calc(100% - 60px);
+            flex-shrink: 1;
+        }
+
+        /* Input Loading Animation */
+        .input-wrapper.load::before {
+            position: absolute;
+            content: 'translating...';
+            width: 0px;
+            height: 100%;
+            transform-origin: left center;
+            animation: forwards load 1s;
+            background-color: #999999; /* Medium gray for loading overlay */
+            display: flex;
+            align-items: center;
+            z-index: 1;
+            overflow: hidden;
+            color: #ffffff; /* White text for loading */
+            animation-delay: 0.3s;
+            pointer-events: none;
+        }
+
+        @keyframes load {
+            from { padding: 0; width: 0px; }
+            to { padding: 0 16px; width: 100%; }
+        }
+
+        /* Input Wrapper Borders/Decorations */
+        .input-wrapper::after {
+            position: absolute;
+            content: '';
+            width: 100%;
+            height: 100%;
+            left: 0;
+            top: 0;
+            /* Base64 for dark gray pixelated border */
+            --bg: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAYAAAAGCAYAAADgzO9IAAAAAXNSR0IArs4c6QAAACtJREFUGFdj/P///38GLIARJsHIyMgIkofzQQyYIEwjWAyvBEglVqOwWQ4AJB8n7xdzfHQAAAAASUVORK5CYII=);
+            border-image: var(--bg) 2 fill / calc(var(--m) * 2px) / 0 stretch;
+            image-rendering: pixelated;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        /* Input Wrapper Borders/Decorations on Focus */
+        .input-wrapper:has(input:focus):not(.load)::after {
+            /* Base64 for a lighter gray pixelated border on focus */
+            --bg: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAYAAAAGCAYAAADgzO9IAAAAAXNSR0IArs4c6QAAAClJREFUGFdj/P/////CrhMMyKC/zIKBsaDz+P8J5ZaMyBIgMWpK4LIcAGwlKPtGw39XAAAAAElFTkSuQmCC);
+        }
+
+        /* Typing Message Style */
+        .typing-message {
+            width: 100%;
+            color: #ffffff; /* White for typing message */
+        }
+
+        /* Update Message Style */
+        .update {
+            width: 100%;
+            text-align: center;
+            padding: 12px;
+            color: #cccccc; /* Light gray for update messages */
+        }
+
+        /* Send Button Styling */
+        .send {
+            /* CORRECTED: Using the original, valid base64 for the paw icon */
+            background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAASCAYAAABfJS4tAAAAAXNSR0IArs4c6QAAAJdJREFUOE9jZICCTxen/4exKaH59DMZQfrBBLUMhTkIZDgjPkNTwyvAamev7EDxBC5xZEU4DYZphimGGY5LHD346G8wyAVUCwpiwg5bisGmDx4UhMKOkOvR44KgwegWEhuZKJGH7ipchuIyHDlZEp0qcOVG9DQOU0dfgwkFAbrrsbkaq4uHnsHIuY7Y5IVRVtCs2KRVQQ8ADm+M8RqPRL8AAAAASUVORK5CYII=);
+            --w: 22px;
+            --h: 18px;
+            width: calc(var(--w) * var(--m));
+            height: calc(var(--h) * var(--m));
+            background-size: cover;
+            image-rendering: pixelated;
+            border: 0;
+            background-color: transparent;
+            cursor: pointer;
+            filter: grayscale(100%) brightness(1.5); /* Make the paw icon white/gray */
+        }
+
+        .send:hover {
+            filter: grayscale(100%) brightness(1.8); /* Slightly brighter on hover */
+        }
+
+        /* Input Wrapper Borders/Decorations */
+        .input-wrapper::after {
+            position: absolute;
+            content: '';
+            width: 100%;
+            height: 100%;
+            left: 0;
+            top: 0;
+            /* CORRECTED: Using a valid base64 for a dark gray pixelated border */
+            --bg: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAYAAAAGCAYAAADgzO9IAAAAAXNSR0IArs4c6QAAABxJREFUGFdj/P///38GRkYGMAAjSAxGAoZGAADcSwH7lD22VwAAAABJRU5ErkJggg==);
+            border-image: var(--bg) 2 fill / calc(var(--m) * 2px) / 0 stretch;
+            image-rendering: pixelated;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        /* Input Wrapper Borders/Decorations on Focus */
+        .input-wrapper:has(input:focus):not(.load)::after {
+            /* CORRECTED: Using a valid base64 for a lighter gray pixelated border on focus */
+            --bg: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAYAAAAGCAYAAADgzO9IAAAAAXNSR0IArs4c6QAAABxJREFUGFdj/P///38GYwARJAYjAUkjgAADALMKAftM63kAAAAASUVORK5CYII=);
+        }
+
+        /* Back Button Styling */
+        .back-button-container {
+            width: 100%;
+            display: none; /* Hidden by default */
+            justify-content: center;
+            align-items: center;
+        }
+
+        .back-button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            background-color: #555555; /* Medium gray button */
+            color: #ffffff;
+            border: 2px solid #777777; /* Slightly lighter gray border */
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+
+        .back-button:hover {
+            background-color: #777777; /* Lighter gray on hover */
+            border-color: #999999;
+        }
+
+        /* Signature (Footer) Styles */
+        .sign {
+            position: fixed;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #fff;
+            bottom: 10px;
+            right: 10px;
+            font-size: 10px;
+            text-transform: none;
+        }
+
+        a {
+            color: #fff;
+            text-decoration: none;
+            text-transform: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="screen">
+          <div class="inner-screen">
+            <div class="message-wrapper"></div>
+          </div>
+          <div class="ui-wrapper">
+            <div class="input-wrapper">
+              <input class="text-input" type="text" />
+            </div>
+            <button class="send"></button>
+
+            <div class="back-button-container" style="display: none;">
+                <button class="back-button">Go to Surprise Profile</button>
+            </div>
+
+          </div>
+        </div>
+     </div>
+
+     <script>
+        const px = n => `${n}px`;
+        const randomN = max => Math.ceil(Math.random() * max);
+      
+        const elements = {
+          inputWrapper: document.querySelector('.input-wrapper'),
+          textInput: document.querySelector('.text-input'),
+          messageWrapper: document.querySelector('.message-wrapper'),
+          sendButton: document.querySelector('.send'),
+          // No need for backButtonContainer or backButton elements now
+        };
+
+        // Global variable to track the chat stage
+        let chatStage = 0; // 0: Initial, 1: After user replies to "how are u?", 2: After user types "yes"
+
+        class WorldObject {
+          constructor(props) {
+            Object.assign(this, {
+              w: 'auto',
+              h: 'auto',
+              pos: { x: props.x || 0, y: props.y || 0 },
+              grabPos: { prev: { x: 0, y: 0 }, now: { x: 0, y: 0 } },
+              ...props,
+            });
+            if (props.add) this.addToWorld();
+          }
+          setStyles() {
+            const {
+              el,
+              pos: { x, y },
+              w,
+              h,
+              z,
+            } = this;
+            Object.assign(el.style, {
+              width: !isNaN(w) ? px(w) : w,
+              height: !isNaN(h) ? px(h) : h,
+              zIndex: !isNaN(z) ? z : y || 0,
+            });
+            if (this.moveWithTransform) {
+              el.style.transform = `translate(${px(x || 0)}, ${px(y || 0)})`;
+            } else {
+              Object.assign(el.style, {
+                left: px(x || 0),
+                top: px(y || 0),
+              });
+            }
+          }
+          addToWorld() {
+            this.container.appendChild(this.el);
+            this.setStyles();
+          }
+        }
+      
+        class Message extends WorldObject {
+          constructor(props) {
+            super({
+              w: '100%',
+              container: elements.messageWrapper,
+              text: '',
+              ...props,
+            });
+            this.el = Object.assign(document.createElement('div'), {
+              className: `${this.isYou ? '' : 'reverse'} message`,
+              innerHTML: this.isYou ? this.messageContent : this.typingMessage,
+            });
+            this.addToWorld();
+      
+            if (!this.isYou) {
+              // Cat messages get a delay before appearing
+              setTimeout(() => {
+                this.el.innerHTML = this.messageContent;
+              }, 300 + randomN(5) * 500);
+            }
+          }
+          get isYou() {
+            return this.name === 'white'; // 'white' cat represents the user
+          }
+          get messageContent() {
+            return `
+                <div class="speech-bubble">${this.displayTextGradual(this.chatContent)}</div>
+                <div class="icon cat ${this.name}"></div>
+            `;
+          }
+          get typingMessage() {
+            return `
+                <div class="typing-message">${this.name} is typing<span class="pulse">...</span></div>
+            `;
+          }
+          get chatContent() {
+            // This method will generate cat responses based on the current chatStage
+            if (this.isYou) {
+                // If it's the user's message, return their actual text directly
+                return this.text;
+            } else {
+                // If it's a cat's message, determine the response based on the global chatStage
+                if (chatStage === 0) {
+                    return 'how are u? meow';
+                } else if (chatStage === 1) {
+                    return "that's good meow. we have prepared a surprise for u, are u ready? meow";
+                } else if (chatStage === 2) {
+                    // Final message with a link to home.html
+                    return "alright! click <a href='home.html'>here</a> to go to the home page. meow love u";
+                } else {
+                    // Fallback for any messages after the sequence is complete
+                    return 'meow meow!'; 
+                }
+            }
+          }
+
+          displayTextGradual(text, delay = 0.01, offset = 0) {
+            if (!text) return;
+            // Use a regular expression to find HTML tags and non-tag content
+            // We want to process text characters for animation, but leave HTML tags alone.
+            return text.replace(/<[^>]*>|[^<>]*/g, (match, i) => {
+                if (match.startsWith('<') && match.endsWith('>')) {
+                    // It's an HTML tag, return it as-is
+                    return match;
+                } else {
+                    // It's regular text, wrap each character in a span
+                    return [...match].reduce(
+                        (acc, l, charIndex) =>
+                            (acc +=
+                                l === '§'
+                                    ? '<br />'
+                                    : `<span style="animation-delay: ${((charIndex + offset) * delay).toFixed(3)}s">${l}</span>`),
+                        ''
+                    );
+                }
+            });
+          }
+          remove() {
+            this.el.remove();
+            this.actor.bubble = null;
+          }
+        }
+      
+        // Initial chat setup:
+        setTimeout(() => {
+          // Display the "chat entered" message
+          elements.messageWrapper.appendChild(
+            Object.assign(document.createElement('div'), {
+              className: 'update',
+              innerHTML: '- you and 3 other cats entered the chat -',
+            })
+          );
+          // Initiate the first cat message after a slight delay
+          setTimeout(() => {
+            new Message({
+              name: 'biscuit', // You can choose any cat name here for the initial message
+              // The actual text "how are u? meow" is determined by chatContent getter based on chatStage 0
+            });
+          }, 1000); // Delay for the first cat message
+        }, 1000); // Delay for the "chat entered" message
+      
+        const sendMessage = () => {
+          if (!elements.textInput.value.trim()) return; // Prevent sending empty messages
+      
+          const userMessage = elements.textInput.value.trim(); // Get and trim user input
+
+          elements.inputWrapper.classList.add('load'); // Show "translating..." animation
+          
+          setTimeout(() => {
+            elements.inputWrapper.classList.remove('load'); // Hide "translating..."
+
+            // Display the user's message
+            new Message({
+              text: userMessage, 
+              name: 'white', // User's cat
+            });
+            elements.textInput.value = ''; // Clear the input field
+            
+            // Logic to advance chat stage and trigger the cat's next response
+            setTimeout(() => {
+                if (chatStage === 0) {
+                    // User has just replied to "how are u?"
+                    chatStage = 1; 
+                    new Message({
+                        name: 'sleepy', // A cat will respond
+                        // The message content is derived from chatContent getter based on chatStage 1
+                    });
+                } else if (chatStage === 1 && userMessage.toLowerCase().includes('yes')) {
+                    chatStage = 2; // User typed "yes" (or something that includes it)
+                    new Message({
+                        name: 'choco', // Another cat
+                        // The message content is derived from chatContent getter based on chatStage 2
+                    });
+                    
+                    // No need to hide/show UI elements anymore, as the link is in the chat
+                }
+                // No 'else if (chatStage === 2)' block needed for handling user input after the link is shown,
+                // as the conversation is effectively "ended" by the link.
+            }, randomN(4) * 300); // Random delay for cat's response
+          }, 1300); // Delay for the "translating..." animation
+        };
+      
+        // Event Listeners for sending messages
+        elements.sendButton.addEventListener('click', sendMessage);
+        window.addEventListener('keydown', e => {
+          if (e.key === 'Enter') sendMessage();
+        });
+
+        // No dedicated event listener for a separate back button now
+     </script>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Who's Watching?</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: #141414;
+      font-family: Arial, sans-serif;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .profiles {
+      display: flex;
+      gap: 30px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .profile {
+      text-align: center;
+      cursor: pointer;
+      text-decoration: none;
+      color: white;
+    }
+
+    .profile img {
+      width: 120px;
+      height: 120px;
+      border-radius: 5px;
+      margin-bottom: 10px;
+      transition: transform 0.3s;
+    }
+
+    .profile:hover img {
+      transform: scale(1.1);
+    }
+
+    .manage-profiles {
+      margin-top: 30px;
+      padding: 10px 20px;
+      background-color: transparent;
+      border: 1px solid #999;
+      color: #999;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    .manage-profiles:hover {
+      color: white;
+      border-color: white;
+    }
+  </style>
+</head>
+<body>
+  <h1>Who's watching?</h1>
+  <div class="profiles">
+    <a href="ours.html" class="profile">
+      <img src="https://i.pinimg.com/736x/f2/c3/46/f2c346c2eb6c9237ab7d87885f90fbc3.jpg" alt="F&J">
+      <div>Us</div>
+    </a>
+    <a href="box.html" class="profile">
+      <img src="https://i.pinimg.com/736x/19/28/8e/19288e719827125db8b985d610e5e9e6.jpg" alt="Jeth">
+      <div>Love</div>
+    </a>
+    <a href="cat.html" class="profile">
+      <img src="https://i.pinimg.com/736x/29/eb/35/29eb35d6559b63f3d9ff888f5121ad8c.jpg" alt="Faulin">
+      <div>Cat</div>
+    </a>
+    <a href="lock.html" class="profile">
+      <img src="https://i.pinimg.com/736x/6f/a5/48/6fa5484ab602a7c7a9f32df2531cfee0.jpg" alt="Add Profile">
+      <div>Open this last</div>
+    </a>
+  </div>
+  <button id="manageProfilesBtn" class="manage-profiles">MANAGE PROFILES</button>
+  <script>
+    const manageProfilesButton = document.getElementById('manageProfilesBtn');
+
+    if (manageProfilesButton) {
+        manageProfilesButton.addEventListener('click', function() {
+            window.location.href = 'netflix.html';
+        });
+    }
+</script>
+
+</body>
+</html>

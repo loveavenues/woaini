@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>No Distance</title>
+    <style>
+        /* Internal CSS starts here */
+
+        /* Basic Reset (Good practice, but you might have a more comprehensive one) */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden; /* Prevent body scroll if video is larger than viewport */
+            font-family: sans-serif; /* A default font */
+            background-color: #000; /* Black background for video */
+            display: flex; /* Use flexbox to center video */
+            justify-content: center;
+            align-items: center;
+        }
+
+        .video-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .video-container video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Ensures the video covers the container while maintaining aspect ratio */
+            display: block; /* Removes any extra space below the video */
+        }
+
+        /* You can add a button for muting/unmuting the background music */
+        .audio-control-button {
+            position: fixed; /* Fixed position relative to the viewport */
+            bottom: 20px; /* 20px from the bottom */
+            right: 20px; /* 20px from the right */
+            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+            color: white;
+            border: 1px solid white;
+            border-radius: 5px;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 14px;
+            z-index: 1000; /* Ensure it's above the video */
+        }
+
+        .audio-control-button:hover {
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        /* Internal CSS ends here */
+    </style>
+</head>
+<body>
+
+    <div class="video-container">
+        <video autoplay loop muted playsinline>
+            <source src="./img/map.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+
+    <audio id="background-music" autoplay loop muted>
+        <source src="./g2b.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <button id="mute-unmute-btn" class="audio-control-button">Unmute Music</button>
+
+    <script>
+        const backgroundMusic = document.getElementById('background-music');
+        const muteUnmuteBtn = document.getElementById('mute-unmute-btn');
+
+        // Check user's last mute preference from localStorage
+        // 'false' means user previously unmuted, 'true' or null means user muted or no preference
+        const userPrefUnmuted = localStorage.getItem('musicMuted') === 'false';
+
+        // Initialize the audio element's muted state based on stored preference
+        // Even if userPrefUnmuted is true, the browser will likely still enforce muting on refresh
+        // until a user gesture. So we set it to the user's preference here, but then
+        // immediately try to play to see if the browser allows it.
+        backgroundMusic.muted = !userPrefUnmuted; // Set to true if pref is muted, false if pref is unmuted
+
+        // Update the button text based on the initial desired state (from localStorage)
+        muteUnmuteBtn.textContent = backgroundMusic.muted ? 'Unmute Music' : 'Mute Music';
+
+
+        // Function to handle playing/pausing and updating state/localStorage
+        function toggleMusicPlayback() {
+            if (backgroundMusic.muted) {
+                // If currently muted, try to unmute and play
+                backgroundMusic.muted = false;
+                backgroundMusic.play().then(() => {
+                    muteUnmuteBtn.textContent = 'Mute Music';
+                    localStorage.setItem('musicMuted', 'false'); // Save unmuted preference
+                }).catch(error => {
+                    // Playback was blocked again (e.g., if browser requires a second click after initial load)
+                    console.warn("Audio playback unmuting blocked:", error);
+                    backgroundMusic.muted = true; // Revert to muted if play fails
+                    muteUnmuteBtn.textContent = 'Unmute Music';
+                    localStorage.setItem('musicMuted', 'true'); // Save muted preference
+                });
+            } else {
+                // If currently unmuted, mute it
+                backgroundMusic.muted = true;
+                muteUnmuteBtn.textContent = 'Unmute Music';
+                localStorage.setItem('musicMuted', 'true'); // Save muted preference
+            }
+        }
+
+        // Add event listener to the button
+        muteUnmuteBtn.addEventListener('click', toggleMusicPlayback);
+
+        // A final attempt to play unmuted if the user's preference is unmuted
+        // This will only work if a user gesture (like the initial page click for navigation)
+        // has already happened on the current page session. On a direct refresh, it still won't.
+        if (!backgroundMusic.muted) { // If our initial setting from localStorage was unmuted
+             backgroundMusic.play().then(() => {
+                console.log("Attempted to play unmuted audio on load successfully.");
+                // If it successfully plays unmuted, update button
+                muteUnmuteBtn.textContent = 'Mute Music';
+             }).catch(error => {
+                console.warn("Autoplay of unmuted audio blocked on load:", error);
+                // If unmuted autoplay fails, the browser has likely muted it.
+                backgroundMusic.muted = true; // Ensure state is correct
+                muteUnmuteBtn.textContent = 'Unmute Music';
+                // Note: We don't save to localStorage here because the user's preference is still 'unmuted'.
+                // It's the browser forcing the mute.
+             });
+        }
+
+
+        // Optional: Keep button text and localStorage in sync if user interacts with browser's media controls
+        backgroundMusic.addEventListener('volumechange', () => {
+            // Check if the actual muted state of the audio element differs from what's in localStorage
+            const currentLocalStorageMutePref = localStorage.getItem('musicMuted') === 'true';
+
+            if (backgroundMusic.muted !== currentLocalStorageMutePref) {
+                localStorage.setItem('musicMuted', backgroundMusic.muted);
+                muteUnmuteBtn.textContent = backgroundMusic.muted ? 'Unmute Music' : 'Mute Music';
+            }
+        });
+
+    </script>
+
+</body>
+</html>
