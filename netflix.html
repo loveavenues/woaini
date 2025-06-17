@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OverviewY</title>
+    <style>
+        /* ─── RESET ─────────────────────────────────────── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        /* ─── CSS VARIABLES ─────────────────────────────── */
+        :root {
+            --brand-color: #8c7d7d;
+            --dark-color: #1e1b26;
+            --accent-color: #e7e7e7;
+            --text-light: #b4b4b4;
+            --text-lighter: #d7d7d7;
+            --section-space: 16px;
+            --card-padding: 24px;
+            --poster-overlay: rgba(30, 27, 38, 0.8);
+        }
+
+        /* ─── BODY ──────────────────────────────────────── */
+        body {
+            background: linear-gradient(rgba(30, 27, 38, 0.95), rgba(30, 27, 38, 0.95)), url("./img/ours.JPG");
+            background-position: center; background-size: cover; font-family: 'Open Sans', sans-serif;
+            color: var(--accent-color); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px;
+        }
+
+        a { color: var(--accent-color); text-decoration: none; }
+
+        /* ─── CARD LAYOUT ───────────────────────────────── */
+        .movie-card { width: 100%; background: var(--dark-color); border-radius: 4px; overflow: hidden; box-shadow: 0 25px 50px rgba(0,0,0,.6); position: relative; }
+        @media (min-width: 768px) { .movie-card { max-width: 650px; display: flex; } }
+
+        /* ─── IMAGE ─────────────────────────────────────── */
+        .movie-img-container { height: 380px; position: relative; overflow: hidden; }
+        .movie-img { width: 100%; height: 100%; background: url("./img/cove.JPG") no-repeat center/cover; }
+        .movie-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(30,27,38,0) 30%, rgba(30,27,38,0.7) 60%, rgba(30,27,38,1) 100%); z-index: 1; }
+        @media (min-width: 768px) { .movie-img-container { width: 40%; height: auto; } .movie-overlay { background: linear-gradient(90deg, rgba(30,27,38,0) 0%, var(--poster-overlay) 100%); } }
+
+        /* ─── CONTENT ───────────────────────────────────── */
+        .movie-content { padding: var(--card-padding); position: relative; margin-top: -120px; z-index: 2; }
+        @media (min-width: 768px) { .movie-content { width: 60%; margin-top: 0; } }
+
+        .title-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+        .movie-title { font-family: 'Montserrat', sans-serif; font-size: 24px; font-weight: 700; line-height: 1.2; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.3); flex: 1; }
+        .year-badge { font-family: 'Montserrat', sans-serif; font-size: 14px; font-weight: 600; color: var(--text-lighter); margin-left: 8px; opacity: .85; }
+        .rating-badge { background: var(--brand-color); color: #fff; padding: 2px 8px; border-radius: 4px; font-family: 'Montserrat', sans-serif; font-size: 12px; font-weight: 600; margin-top: 3px; box-shadow: 0 2px 4px rgba(0,0,0,.2); letter-spacing: .5px; }
+
+        .metadata { display: flex; align-items: center; margin: 8px 0 var(--section-space); }
+        .duration { display: flex; align-items: center; font-size: 13px; color: var(--text-light); margin-right: 16px; }
+        .duration-icon { width: 14px; height: 14px; fill: var(--text-light); margin-right: 4px; }
+
+        .genres { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: var(--section-space); }
+        .genre-tag { background: rgba(254,65,65,.1); border: 1px solid rgba(254,65,65,.3); padding: 3px 10px; border-radius: 16px; font-size: 11px; font-weight: 500; color: var(--text-lighter); }
+
+        /* ─── RATING & LIKES ───────────────────────────── */
+        .ratings-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--section-space); padding-bottom: var(--section-space); border-bottom: 1px solid rgba(255,255,255,.1); }
+        .star-rating { display: flex; align-items: center; }
+        .stars { display: flex; }
+        .star { width: 16px; height: 16px; margin-right: 2px; }
+        .star-filled { fill: #FFD700; }
+        .star-half { fill: url(#halfGradient); }
+        .rating-text { font-size: 13px; font-weight: 600; color: var(--text-lighter); margin-left: 8px; }
+        .likes { display: flex; align-items: center; background: rgba(255,255,255,.05); padding: 5px 10px; border-radius: 20px; }
+        .heart-icon { width: 16px; height: 16px; margin-right: 6px; fill: var(--brand-color); }
+        .likes-count { font-size: 12px; font-weight: 600; color: var(--text-light); }
+
+        /* ─── DESCRIPTION ──────────────────────────────── */
+        .description-section { margin-bottom: var(--section-space); }
+        .section-title { font-family: 'Montserrat', sans-serif; font-size: 14px; font-weight: 600; letter-spacing: 1px; margin-bottom: 10px; color: var(--text-lighter); }
+        .movie-description { font-size: 13px; line-height: 1.6; color: var(--text-light); text-align: justify; }
+
+        /* ─── TIME TOGETHER COUNTER ─────────────────────── */
+        .time-section { margin-bottom: var(--section-space); }
+        .time-counter { display: flex; gap: 15px; flex-wrap: wrap; }
+        .time-box { flex: 1 1 60px; min-width: 60px; background: rgba(255,255,255,.05); border: 2px solid var(--brand-color); border-radius: 4px; padding: 10px 0; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,.2); }
+        .time-box span { display: block; }
+        .time-number { font-family: 'Montserrat', sans-serif; font-size: 20px; font-weight: 700; color: var(--accent-color); }
+        .time-label { font-size: 10px; color: var(--text-lighter); letter-spacing: .5px; margin-top: 4px; }
+
+        /* ─── ACTION ROW ───────────────────────────────── */
+        .action-row { display: grid; grid-template-columns: 1fr repeat(3,40px); gap: 10px; align-items: center; margin-top: 10px; }
+        .watch-btn { /* This is now the clickable element */
+            background: var(--brand-color);
+            border: none;
+            border-radius: 4px;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(161, 143, 143, 0.3);
+            transition: transform .3s, box-shadow .3s;
+            text-decoration: none; /* Ensure it doesn't look like a default link */
+            color: #fff; /* Ensure text color is white */
+            font-family: 'Montserrat', sans-serif; /* Keep consistent font */
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .watch-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(114, 101, 101, 0.579); background: #6b5757; }
+        .watch-btn-text { /* This styling can remain, but it's now applied to the button's content */
+            margin-left: 8px; /* Maintain spacing for the text next to the icon */
+        }
+        .action-btn { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; background: rgba(255,255,255,.05); border-radius: 4px; transition: transform .2s, background .2s; }
+        .action-btn:hover { background: rgba(255,255,255,.1); transform: translateY(-2px); }
+        .action-icon { width: 18px; height: 18px; fill: var(--text-lighter); }
+
+        .cast-section { margin-bottom: var(--section-space); }
+        .cast-list { /* lays the names out like the old timer boxes */
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .cast-card { /* visual style matches the previous time‑boxes */
+            flex: 1 1 80px;
+            min-width: 80px;
+            background: rgba(255,255,255,.05);
+            border: 2px solid var(--brand-color);
+            border-radius: 4px;
+            padding: 12px 6px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,.2);
+        }
+        .cast-name {
+            display: block;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--accent-color);
+            letter-spacing: .5px;
+        }
+    </style>
+</head>
+<body>
+    <svg style="width:0;height:0;position:absolute;" aria-hidden="true" focusable="false">
+        <linearGradient id="halfGradient">
+            <stop offset="50%" stop-color="#FFD700" />
+            <stop offset="50%" stop-color="rgba(255, 255, 255, 0.2)" />
+        </linearGradient>
+    </svg>
+
+    <div class="movie-card">
+        <div class="movie-img-container">
+            <div class="movie-img"></div>
+            <div class="movie-overlay"></div>
+        </div>
+
+        <div class="movie-content">
+            <div class="title-row">
+                <h1 class="movie-title">♡ <span class="year-badge">2025</span></h1>
+                <span class="rating-badge">L</span>
+            </div>
+
+            <div class="metadata">
+                <div class="duration">
+                    <svg class="duration-icon" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/><path d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+                    1h 43min
+                </div>
+            </div>
+
+            <div class="genres">
+                <span class="genre-tag">Romance</span>
+                <span class="genre-tag">Fluff</span>
+                <span class="genre-tag">Comedy</span>
+            </div>
+
+            <div class="ratings-row">
+                <div class="star-rating">
+                    <div class="stars">
+                        <svg class="star star-filled" viewBox="0 0 24 24"><path d="M12 2l2.4 7.4h7.6l-6 4.6 2.3 7-6.3-4.6-6.3 4.6 2.3-7-6-4.6h7.6z"/></svg>
+                        <svg class="star star-filled" viewBox="0 0 24 24"><path d="M12 2l2.4 7.4h7.6l-6 4.6 2.3 7-6.3-4.6-6.3 4.6 2.3-7-6-4.6h7.6z"/></svg>
+                        <svg class="star star-filled" viewBox="0 0 24 24"><path d="M12 2l2.4 7.4h7.6l-6 4.6 2.3 7-6.3-4.6-6.3 4.6 2.3-7-6-4.6h7.6z"/></svg>
+                        <svg class="star star-filled" viewBox="0 0 24 24"><path d="M12 2l2.4 7.4h7.6l-6 4.6 2.3 7-6.3-4.6-6.3 4.6 2.3-7-6-4.6h7.6z"/></svg>
+                        <svg class="star star-filled" viewBox="0 0 24 24"><path d="M12 2l2.4 7.4h7.6l-6 4.6 2.3 7-6.3-4.6-6.3 4.6 2.3-7-6-4.6h7.6z"/></svg>
+                    </div>
+                    <span class="rating-text">10/10</span>
+                </div>
+
+                <div class="likes">
+                    <svg class="heart-icon" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                    <span class="likes-count">2.4M</span>
+                </div>
+            </div>
+
+            <div class="description-section">
+                <h5 class="section-title">SUMMARY</h5>
+                <p class="movie-description">
+                    Fate brings together two strangers- and a cat.
+                </p>
+            </div>
+
+            <div class="cast-section">
+                <h5 class="section-title">CAST</h5>
+                <div class="cast-list">
+                    <div class="cast-card"><span class="cast-name">You</span></div>
+                    <div class="cast-card"><span class="cast-name">Me</span></div>
+                    <div class="cast-card"><span class="cast-name">Wo Ai Ni</span></div>
+                </div>
+            </div>
+
+            <div class="action-row">
+                <button class="watch-btn" id="viewMoreBtn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
+                    <span class="watch-btn-text">VIEW MORE</span>
+                </button>
+
+                <div class="action-btn"><svg class="action-icon" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg></div>
+                <div class="action-btn"><svg class="action-icon" viewBox="0 0 24 24"><path d="M17 3H7c-1.1 0-1.99.9-1.99 2L5 21l7-3 7 3V5c0-1.1-.9-2-2-2z"/></svg></div>
+                <div class="action-btn"><svg class="action-icon" viewBox="0 0 24 24"><path d="M15 4C12.8 4 11 5.8 11 8c0 2.2 1.8 4 4 4s4-1.8 4-4c0-2.2-1.8-4-4-4zm4.9 8.5c.6 1 .8 2.3.8 3.5 0 2.8-2.2 5-5 5h-5.4c-3.1 0-5.6-2.5-5.6-5.6V15c0-1.1.9-2 2-2h4.6c.3 0 .5.1.7.3.5.5.8 1.1.8 1.7v.3c0 .3-.3.6-.6.6h-1.5c-.5 0-.9.4-.9.9s.4.9.9.9h2.4c1.1 0 2.1-.5 2.8-1.2.4-.4 1.2-1.5 1.2-1.5M9 17c-.8 0-1.5-.7-1.5-1.5S8.2 14 9 14s1.5.7 1.5 1.5S9.8 17 9 17z"/></svg></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Set this to the date you want to count *from* ("time together")
+        const startDate = new Date('2025-02-14T13:00:00'); //YYYY-MM-DDTHH:MM:SS
+        const viewMoreButton = document.getElementById('viewMoreBtn'); // Now targets the button
+
+        /**
+         * Update the DOM every second with the time elapsed since startDate
+         */
+        function updateCounter() {
+            const now = new Date();
+            let diff = now - startDate; // milliseconds elapsed
+
+            // Guard: if startDate is in the future, show zeros
+            if (diff < 0) diff = 0;
+
+            const days    = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours   = Math.floor((diff / (1000 * 60 * 60)) % 24);
+            const minutes = Math.floor((diff / (1000 * 60)) % 60);
+            const seconds = Math.floor((diff / 1000) % 60);
+
+            // You had these elements commented out or missing in the HTML for the counter
+            // I'm assuming you will add them back if you want the counter to display
+            // document.getElementById('days').textContent    = days;
+            // document.getElementById('hours').textContent   = String(hours).padStart(2,'0');
+            // document.getElementById('minutes').textContent = String(minutes).padStart(2,'0');
+            // document.getElementById('seconds').textContent = String(seconds).padStart(2,'0');
+        }
+
+        // Initial call & interval
+        updateCounter();
+        setInterval(updateCounter, 1000);
+
+        if (viewMoreButton) { // It's good practice to check if the element exists
+            viewMoreButton.addEventListener('click', function() {
+                // Redirect to home.html when the button is clicked
+                window.location.href = 'home.html';
+            });
+        }
+    </script>
+</body>
+</html>
